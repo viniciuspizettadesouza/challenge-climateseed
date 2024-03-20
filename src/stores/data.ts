@@ -1,5 +1,9 @@
 import { defineStore } from 'pinia';
-import {IAggregatedData, IDataState, ITempAggregatedData} from '../models/GraphModel'
+import {
+  IAggregatedData,
+  IDataState,
+  ITempAggregatedData,
+} from '../models/GraphModel';
 
 const defaultDataState: IDataState = {
   results: [
@@ -23,19 +27,24 @@ const defaultDataState: IDataState = {
     { entityId: 3, categoryId: 7, kco2e: 1500 },
   ],
   organisations: [
-    { id: 1, name: 'Climateseed', numberOfEmployees: 100, turnover: 1000000000 },
+    {
+      id: 1,
+      name: 'Climateseed',
+      numberOfEmployees: 100,
+      turnover: 1000000000,
+    },
     { id: 2, name: 'Acme Corp', numberOfEmployees: 10, turnover: 20000 },
-    { id: 3, name: 'Fast Co2', numberOfEmployees: 50, turnover: 35000 }
+    { id: 3, name: 'Fast Co2', numberOfEmployees: 50, turnover: 35000 },
   ],
   categories: [
     { id: 1, name: 'Travel', categoryId: null },
     { id: 2, name: 'Business travel', categoryId: 1, scope: 'Scope 2' },
     { id: 3, name: 'Vehicule fleet', categoryId: 1, scope: 'Scope 2' },
-    { id: 4, name: 'Digital', categoryId: null, },
+    { id: 4, name: 'Digital', categoryId: null },
     { id: 5, name: 'Website', categoryId: 4, scope: 'Scope 1' },
     { id: 6, name: 'Videoconference', categoryId: 4, scope: 'Scope 2' },
-    { id: 7, name: 'IT Material', categoryId: 4, scope: 'Scope 3' }
-  ]
+    { id: 7, name: 'IT Material', categoryId: 4, scope: 'Scope 3' },
+  ],
 };
 
 export const useDataStore = defineStore({
@@ -44,12 +53,19 @@ export const useDataStore = defineStore({
   getters: {
     aggregatedData(state): IAggregatedData {
       const data = state.results.reduce((sum, r) => {
-        const organisation = this.organisations.find(o => o.id === r.entityId).name;
-        sum[organisation] = sum[organisation] || { organisation, kco2e: 0 };
+        const organisation = this.organisations.find(
+          (o) => o.id === r.entityId,
+        ).name;
+        sum[organisation] = sum[organisation] || {
+          organisation,
+          kco2e: 0,
+        };
         sum[organisation].kco2e += r.kco2e;
         return sum;
       }, {});
-      const series = Object.values(data as ITempAggregatedData).map(d => d.kco2e);
+      const series = Object.values(data as ITempAggregatedData).map(
+        (d) => d.kco2e,
+      );
       const legend = Object.keys(data);
       return { series, legend };
     },
@@ -90,15 +106,15 @@ export const useDataStore = defineStore({
                 total: {
                   show: true,
                   showAlways: true,
-                  color: '#ffffff'
+                  color: '#ffffff',
                 },
                 value: {
-                  color: '#ffffff'
-                }
-              }
-            }
-          }
-        }
+                  color: '#ffffff',
+                },
+              },
+            },
+          },
+        },
       };
     },
   },

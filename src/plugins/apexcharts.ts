@@ -1,5 +1,4 @@
-
-import VueApexCharts from "vue3-apexcharts";
+import VueApexCharts from 'vue3-apexcharts';
 
 /**
  * Initialize VueApexChart component

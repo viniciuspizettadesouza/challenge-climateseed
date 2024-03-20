@@ -9,7 +9,7 @@
     "strictBindCallApply": true,
     "noImplicitThis": true,
     "allowSyntheticDefaultImports": true,
-    "jsx":"preserve",
+    "jsx": "preserve",
     "noUnusedLocals": true,
     "baseUrl": ".",
     "allowJs": true,
