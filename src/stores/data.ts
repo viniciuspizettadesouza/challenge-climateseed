@@ -20,6 +20,20 @@ interface ICategory {
   scope?: string;
 }
 
+interface ITempAggregatedData {
+  [organisation: string]: {
+    organisation: string;
+    kco2e: number;
+  };
+}
+
+
+interface IAggregatedData {
+  series: number[];
+  legend: string[];
+}
+
+
 interface IDataState {
   results: IResult[];
   organisations: IOrganisation[];
@@ -67,16 +81,20 @@ export const useDataStore = defineStore({
   id: 'dataStore',
   state: (): IDataState => ({ ...defaultDataState }),
   getters: {
-    aggregatedData(state): { series: number[]; legend: string[] } {
+    aggregatedData(state): IAggregatedData {
       const data = state.results.reduce((sum, r) => {
         const organisation = this.organisations.find(o => o.id === r.entityId).name;
         sum[organisation] = sum[organisation] || { organisation, kco2e: 0 };
         sum[organisation].kco2e += r.kco2e;
         return sum;
       }, {});
-      const series = Object.values(data).map(d => d.kco2e);
+      const series = Object.values(data as ITempAggregatedData).map(d => d.kco2e);
       const legend = Object.keys(data);
       return { series, legend };
+    },
+    aggregatedDataTypeBar() {
+      const series = this.aggregatedData.series;
+      return [{ data: series }];
     },
     chartOptions() {
       return {
