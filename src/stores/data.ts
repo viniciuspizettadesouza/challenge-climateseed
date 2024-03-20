@@ -1,44 +1,5 @@
 import { defineStore } from 'pinia';
-
-interface IResult {
-  entityId: number;
-  categoryId: number;
-  kco2e: number;
-}
-
-interface IOrganisation {
-  id: number;
-  name: string;
-  numberOfEmployees: number;
-  turnover: number;
-}
-
-interface ICategory {
-  id: number;
-  name: string;
-  categoryId: number | null;
-  scope?: string;
-}
-
-interface ITempAggregatedData {
-  [organisation: string]: {
-    organisation: string;
-    kco2e: number;
-  };
-}
-
-
-interface IAggregatedData {
-  series: number[];
-  legend: string[];
-}
-
-
-interface IDataState {
-  results: IResult[];
-  organisations: IOrganisation[];
-  categories: ICategory[];
-}
+import {IAggregatedData, IDataState, ITempAggregatedData} from '../models/GraphModel'
 
 const defaultDataState: IDataState = {
   results: [
