@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.app.json",
-  "exclude": [],
+  "include": ["src/**/*.vue", "src/**/*.ts"],
+  "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "composite": true,
     "lib": [],
