@@ -2,14 +2,14 @@
 import { useDataStore } from '../stores/data';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { computed } from 'vue';
 
 const dataStore = useDataStore();
-const { aggregatedData, aggregatedDataTypeBar, chartOptions } =
+const { aggregatedData, chartOptions, uniqueCategories, organisations } =
   storeToRefs(dataStore);
-const { series } = aggregatedData.value;
 
 const isDonutChart = ref(true);
-const newData = ref({ categoryId: null, entityId: null, kco2e: null });
+const newData = ref({ entityId: null, categoryId: null, kco2e: null });
 
 const toggleChartType = () => {
   isDonutChart.value = !isDonutChart.value;
@@ -22,17 +22,88 @@ const addData = () => {
     newData.value.kco2e
   ) {
     dataStore.addData(newData.value);
-    newData.value = { categoryId: null, entityId: null, kco2e: null };
-  } else {
-    alert('Please fill all fields');
+    newData.value = { entityId: null, categoryId: null, kco2e: null };
   }
 };
 
-const { organisations, categories } = dataStore;
+const chartSeries = computed(() => {
+  return [{ data: aggregatedData.value.series }];
+});
+
+// New graph: Turnover of each organization
+const orgNumberOfEmployesSeries = computed(() => {
+  return [
+    {
+      name: 'NumberOfEmployees',
+      data: organisations.value.map((org) => org.numberOfEmployees),
+    },
+  ];
+});
+
+const orgNumberOfEmployesOptions = computed(() => {
+  return {
+    chart: {
+      type: 'bar',
+      height: '100%',
+      width: '100%',
+    },
+    xaxis: {
+      categories: organisations.value.map((org) => org.name),
+    },
+    colors: ['#4B77BE'],
+    dataLabels: {
+      enabled: false,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+        endingShape: 'rounded',
+      },
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['transparent'],
+    },
+    grid: {
+      borderColor: '#f1f1f1',
+    },
+  };
+});
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto p-6 space-y-8">
+  <div class="max-w-md mx-auto p-6 space-y-8">
+    <div class="max-w-md mx-auto p-6 space-y-8 bg-white rounded-lg shadow-lg">
+      <h2 class="text-lg font-semibold mb-4">
+        Organizations Number Of Employees
+      </h2>
+      <apexchart
+        :series="orgNumberOfEmployesSeries"
+        :options="orgNumberOfEmployesOptions"
+        type="bar"
+        class="w-full"
+      />
+    </div>
+
+    <div v-if="isDonutChart">
+      <apexchart
+        :series="aggregatedData.series"
+        :options="chartOptions"
+        type="donut"
+        class="w-full"
+      />
+    </div>
+    <div v-else>
+      <apexchart
+        :series="chartSeries"
+        :options="chartOptions"
+        type="bar"
+        class="w-full"
+      />
+    </div>
+
     <div>
       <button
         @click="toggleChartType"
@@ -42,52 +113,36 @@ const { organisations, categories } = dataStore;
       </button>
     </div>
 
-    <div v-if="isDonutChart">
-      <apexchart
-        :series="series"
-        :options="chartOptions"
-        type="donut"
-        class="w-full"
-      />
-    </div>
-    <div v-else>
-      <apexchart
-        :series="aggregatedDataTypeBar"
-        :options="chartOptions"
-        type="bar"
-        class="w-full"
-      />
-    </div>
-
     <form @submit.prevent="addData" class="flex flex-col space-y-4">
       <div class="flex flex-col sm:flex-row sm:space-x-4">
         <div class="w-full sm:w-1/2">
-          <label for="category" class="block font-semibold mb-1"
-            >Category:</label
-          >
+          <label for="category" class="block font-semibold mb-1">
+            Category:
+          </label>
           <select
             v-model="newData.categoryId"
             id="category"
-            class="border rounded-md p-2 w-full"
+            class="border rounded-md p-2 w-full text-black"
           >
             <option disabled value="">Select Category</option>
+
             <option
-              v-for="category in categories"
-              :key="category.id"
-              :value="category.id"
+              v-for="category in uniqueCategories"
+              :key="category"
+              :value="category"
             >
-              {{ category.name }}
+              {{ category }}
             </option>
           </select>
         </div>
         <div class="w-full sm:w-1/2">
-          <label for="organisation" class="block font-semibold mb-1"
-            >Organisation:</label
-          >
+          <label for="organisation" class="block font-semibold mb-1">
+            Organisation:
+          </label>
           <select
             v-model="newData.entityId"
             id="organisation"
-            class="border rounded-md p-2 w-full"
+            class="border rounded-md p-2 w-full text-black"
           >
             <option disabled value="">Select Organisation</option>
             <option
@@ -104,11 +159,10 @@ const { organisations, categories } = dataStore;
       <div>
         <label for="kco2e" class="block font-semibold mb-1">Kco2e:</label>
         <input
+          v-model.number="newData.kco2e"
           type="number"
-          v-model="newData.kco2e"
           id="kco2e"
-          placeholder="Enter Kco2e"
-          class="border rounded-md p-2 w-full"
+          class="border rounded-md p-2 w-full text-black"
         />
       </div>
 

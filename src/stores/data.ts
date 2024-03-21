@@ -3,6 +3,7 @@ import {
   IAggregatedData,
   IDataState,
   ITempAggregatedData,
+  IResult,
 } from '../models/GraphModel';
 
 const defaultDataState: IDataState = {
@@ -69,11 +70,13 @@ export const useDataStore = defineStore({
       const legend = Object.keys(data);
       return { series, legend };
     },
-    aggregatedDataTypeBar() {
-      const series = this.aggregatedData.series;
-      return [{ data: series }];
+    uniqueCategories(state) {
+      return Array.from(
+        new Set(state.results.map((result) => result.categoryId)),
+      );
     },
     chartOptions() {
+      const { legend } = this.aggregatedData;
       return {
         chart: {
           type: 'donut',
@@ -82,7 +85,7 @@ export const useDataStore = defineStore({
           width: '100%',
         },
         colors: ['#26C281', '#4B77BE', '#E43A45'],
-        labels: this.aggregatedData.legend,
+        labels: legend,
         dataLabels: {
           enabled: false,
         },
@@ -116,6 +119,11 @@ export const useDataStore = defineStore({
           },
         },
       };
+    },
+  },
+  actions: {
+    addData(value: IResult) {
+      this.results.push(value);
     },
   },
 });
